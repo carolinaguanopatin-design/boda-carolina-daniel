@@ -6,7 +6,7 @@
   let h=parts.join('');
   if(!h.includes('data:audio/mpeg;base64')||(h.split('data:image/').length-1)<7)throw Error('No se cargaron todos los recursos');
   h=h.replace("const guest=(p.get('nombre')||'Flor y Alfredo').trim().slice(0,120);const rawPasses=p.get('pases')||'2';","const guest=(p.get('nombre')||'').trim().slice(0,120);const rawPasses=p.get('pases')||'1';");
-  h=h.replace('Vista previa: tu respuesta todavía no se envía ni se guarda en Google Sheets.','La confirmación se enviará por correo a los novios. Tras revisar tu mensaje, pulsa Enviar.');
+  h=h.replace('Vista previa: tu respuesta todavía no se envía ni se guarda en Google Sheets.','Tu confirmación quedará registrada al pulsar Enviar mi respuesta.');
   h=h.replace(/function demoRSVP\(e\)\{[\s\S]*?\n\}\n\n\/\/ Reveal content/, `function demoRSVP(e){
     e.preventDefault();
     const name=document.getElementById('guest').value.trim();
