@@ -7,7 +7,7 @@
   if(!h.includes('data:audio/mpeg;base64')||(h.split('data:image/').length-1)<7)throw Error('No se cargaron todos los recursos');
   h=h.replace("const guest=(p.get('nombre')||'Flor y Alfredo').trim().slice(0,120);const rawPasses=p.get('pases')||'2';","const guest=(p.get('nombre')||'').trim().slice(0,120);const rawPasses=p.get('pases')||'1';");
   h=h.replace('Vista previa: tu respuesta todavía no se envía ni se guarda en Google Sheets.','La confirmación se enviará por correo a los novios. Tras revisar tu mensaje, pulsa Enviar.');
-  h=h.replace(/function demoRSVP\(e\)\{[\s\S]*?\n\}\n\n\/\/ Reveal content/, `function demoRSVP(e){
+  h=h.replace(/function demoRSVP\\(e\\)\\{[\\s\\S]*?\\n\\}\\n\\n\\/\\/ Reveal content/, `function demoRSVP(e){
     e.preventDefault();
     const name=document.getElementById('guest').value.trim();
     const choice=document.querySelector('input[name="attendance"]:checked');
@@ -15,11 +15,23 @@
     const result=document.getElementById('result');
     if(!name || !choice)return;
     const qs=new URLSearchParams(location.search);
-    const subject=encodeURIComponent('RSVP boda Carolina y Daniel - '+name);
-    const body=encodeURIComponent('Invitado: '+name+'\\nAsistencia: '+choice.value+'\\nPases reservados: '+(qs.get('pases')||'No especificados')+'\\nMensaje: '+(msg||'Sin mensaje'));
+    const attendance=choice.value==='Sí asistiré'?'Sí':'No';
+    const raw=Number(qs.get('pases')||1);
+    const passes=Number.isInteger(raw)&&raw>=1&&raw<=15?raw:1;
+    const values={nombre:name,codigo:qs.get('codigo')||'',asistencia:attendance,pases:String(passes),mensaje:msg};
+    const form=document.createElement('form');
+    form.method='POST';
+    form.action='https://script.google.com/macros/s/AKfycbzm4IejrSQ_DLOmnyA8Tb98V-r7rC5CR_MeJc3OvJB2KDOLMeiMFS-UAqwnKTuUZZy-YQ/exec';
+    form.target='_self';
+    form.style.display='none';
+    for(const [key,value] of Object.entries(values)){
+      const field=document.createElement('input');
+      field.type='hidden';field.name=key;field.value=value;form.appendChild(field);
+    }
+    document.body.appendChild(form);
     result.classList.remove('hidden');
-    result.textContent='Tu confirmación está preparada. Se abrirá el correo y debes pulsar Enviar para completar tu respuesta.';
-    location.href='mailto:carolinaguanopatin@gmail.com?cc=bryandaniel.enriquez@gmail.com&subject='+subject+'&body='+body;
+    result.textContent='Enviando confirmación...';
+    form.submit();
   }
   // Reveal content`);
   document.open();document.write(h);document.close();
